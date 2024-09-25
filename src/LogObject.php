@@ -41,7 +41,7 @@ class LogInformation
         }
     }
 
-    public function populateErrorInfoWithMessageAndBody($errorMessage, $response) 
+    public function populateErrorInfoWithMessageAndBody($errorMessage, $response)
     {
         $this-> populateCommonResponseInfo($response);
         $this-> exceptionMessage = $errorMessage;
@@ -50,24 +50,28 @@ class LogInformation
 
     public function populateErrorInfo($e, $errorContents)
     {
+        $headers = $e-> getResponse()-> getHeader('x-correlation-id');
+
         $this-> populateTotalExecutionTime();
         $this-> statusCode = $e-> getCode();
-        $this-> headerCorrelationId = $e-> getResponse()-> getHeader('x-correlation-id')[0];
-        $this-> exceptionMessage = $errorContents; 
+        $this-> headerCorrelationId = isset($headers[0]) ? $headers[0] : null;
+        $this-> exceptionMessage = $errorContents;
     }
 
     private function populateCommonResponseInfo($response)
     {
+        $headers = $response-> getHeader('x-correlation-id');
+
         $this-> populateTotalExecutionTime();
-        $this-> headerCorrelationId = $response-> getHeader('x-correlation-id')[0];
+        $this-> headerCorrelationId = isset($headers[0]) ? $headers[0] : null;
         $this-> statusCode = $response-> getStatusCode();
     }
 
-    private function populateTotalExecutionTime() 
+    private function populateTotalExecutionTime()
     {
         $time_elapsed_secs = microtime(true) - $this-> startTime;
         $milliseconds = round($time_elapsed_secs * 1000);
-        $this-> totalExecutionTime = $milliseconds; 
-    }    
+        $this-> totalExecutionTime = $milliseconds;
+    }
 }
 ?>
